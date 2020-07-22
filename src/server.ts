@@ -49,14 +49,14 @@ class Server {
 
     public routes(): void {
         // this.app.use('/api/crud', CrudRouter)
-        this.app.use('/api/user', UserRoute)
-        this.app.use('/api/book', BookRouter)
-        this.app.use('/', MainRouter)
+        this.app.use('/api/user', UserRoute);
+        this.app.use('/api/book', BookRouter);
+        this.app.use('/', MainRouter);
         
     }
 
     public start(): void {
-      this.app.listen(this.port , ()=>{
+      this.app.listen(this.port, ()=>{
         console.log("server started")
       } )
     }

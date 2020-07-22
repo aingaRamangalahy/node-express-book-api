@@ -26,6 +26,7 @@ class UserController {
             });
         };
         this.PostUser = (req, res) => {
+            console.log("controler action post");
             let user = new user_model_1.default(req.body);
             user.save((err, users) => {
                 if (err)

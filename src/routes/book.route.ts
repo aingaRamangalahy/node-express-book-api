@@ -13,10 +13,11 @@ class BookRouter {
     routes() {
         this.router.get('/getAll', BookController.GetBooks);
         this.router.get('/get/:id', BookController.GetBookById);
-        this.router.get('/put/:id', BookController.UpdateBook);
-        this.router.get('/post', BookController.PostBook);
-        this.router.get('/delete', BookController.DeleteBook);
         this.router.get('/paginate', BookController.GetPaginatedBook);
+        this.router.put('/put/:id', BookController.UpdateBook);
+        this.router.post('/post', BookController.PostBook);
+        this.router.delete('/delete', BookController.DeleteBook);
+        
     }
 }
 

@@ -11,12 +11,13 @@ class UserRouter {
         this.routes();
     }
     routes() {
+        console.log("router action post");
         this.router.get('/getAll', User_controller_1.default.GetUsers);
         this.router.get('/get/:id', User_controller_1.default.GetUserById);
-        this.router.get('/put/:id', User_controller_1.default.UpdateUser);
-        this.router.get('/post', User_controller_1.default.PostUser);
-        this.router.get('/delete', User_controller_1.default.DeleteUser);
         this.router.get('/paginate', User_controller_1.default.GetPaginatedUser);
+        this.router.put('/put/:id', User_controller_1.default.UpdateUser);
+        this.router.post('/post', User_controller_1.default.PostUser);
+        this.router.delete('/delete', User_controller_1.default.DeleteUser);
     }
 }
 exports.default = new UserRouter().router;

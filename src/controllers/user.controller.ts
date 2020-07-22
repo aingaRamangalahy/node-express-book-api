@@ -24,6 +24,7 @@ class UserController {
   }
 
   PostUser = (req: Request, res: Response): void => {
+    console.log("controler action post")
     let user = new User(req.body);
     user.save((err, users) => {
       if (err) res.status(500).send(err);

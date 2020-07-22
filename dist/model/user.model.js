@@ -26,8 +26,14 @@ let UserSchema = new Schema({
         type: String,
         required: false
     },
-    createdAt: { type: Date, default: Date.now },
-    updatedAt: { type: Date, required: false }
+    createdAt: {
+        type: Date,
+        default: Date.now
+    },
+    updatedAt: {
+        type: Date,
+        required: false
+    }
 }, { _id: true });
 const User = mongoose_1.default.model('User', UserSchema);
 exports.default = User;
