@@ -16,7 +16,7 @@ class BookRouter {
         this.router.get('/paginate', book_controller_1.default.GetPaginatedBook);
         this.router.put('/put/:id', book_controller_1.default.UpdateBook);
         this.router.post('/post', book_controller_1.default.PostBook);
-        this.router.delete('/delete', book_controller_1.default.DeleteBook);
+        this.router.delete('/delete/:id', book_controller_1.default.DeleteBook);
     }
 }
 exports.default = new BookRouter().router;

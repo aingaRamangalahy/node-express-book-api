@@ -17,7 +17,7 @@ class UserRouter {
         this.router.get('/paginate', User_controller_1.default.GetPaginatedUser);
         this.router.put('/put/:id', User_controller_1.default.UpdateUser);
         this.router.post('/post', User_controller_1.default.PostUser);
-        this.router.delete('/delete', User_controller_1.default.DeleteUser);
+        this.router.delete('/delete/:id', User_controller_1.default.DeleteUser);
     }
 }
 exports.default = new UserRouter().router;
