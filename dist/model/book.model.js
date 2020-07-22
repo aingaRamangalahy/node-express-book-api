@@ -18,7 +18,7 @@ let bookSchema = new mongoose_1.default.Schema({
         type: Number,
         required: true
     },
-    publishingDate: {
+    published_at: {
         type: Date,
         required: true,
         default: new Date()
