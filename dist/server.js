@@ -7,29 +7,55 @@ const express_1 = __importDefault(require("express"));
 const mongoose_1 = __importDefault(require("mongoose"));
 const body_parser_1 = __importDefault(require("body-parser"));
 const cors_1 = __importDefault(require("cors"));
-// import * as dotenv from 'dotenv'
-// import * as path from 'path'
+const dotenv_1 = __importDefault(require("dotenv"));
+const path_1 = __importDefault(require("path"));
 // import * as morgan from 'morgan'
 // import * as chalk from 'chalk';
 //import routes
 const book_route_1 = __importDefault(require("./routes/book.route"));
-const book_route_2 = __importDefault(require("./routes/book.route"));
+const main_route_1 = __importDefault(require("./routes/main.route"));
 const user_route_1 = __importDefault(require("./routes/user.route"));
+const login_route_1 = __importDefault(require("./routes/login.route"));
+//import authentification
+const passport_1 = __importDefault(require("passport"));
+const passport_local_1 = __importDefault(require("passport-local"));
+const cookie_parser_1 = __importDefault(require("cookie-parser"));
+const express_session_1 = __importDefault(require("express-session"));
+const Strategy = passport_local_1.default.Strategy;
+const sessionSecret = process.env.SESSION_SECRET || 'mark it zero';
+const adminPassword = process.env.ADMIN_PASSWORD || 'adminpass';
 // Server class
 class Server {
-    //private PORT = process.env.APP_PORT;
-    constructor(port) {
-        this.port = port;
-        this.mongodbUri = "mongodb://localhost:27017/BIBLIO";
+    constructor() {
         this.app = express_1.default();
         this.config();
     }
     config() {
-        // load env
-        // dotenv.config({ path: path.resolve(process.cwd(), '.env') })
+        //load env
+        dotenv_1.default.config({ path: path_1.default.resolve(process.cwd(), '.env') });
+        //local passport strategy config
+        passport_1.default.use(new Strategy(function (username, password, cb) {
+            const isAdmin = (username === 'admin' || 'ainga') && (password === adminPassword);
+            if (isAdmin)
+                cb(null, { username: 'admin' });
+            cb(null, false);
+        }));
+        //passport serialization/deserialization (identity function => return its arguments)
+        passport_1.default.serializeUser((user, cb) => cb(null, user));
+        passport_1.default.deserializeUser((user, cb) => cb(null, user));
+        //parse cookies
+        this.app.use(cookie_parser_1.default());
+        this.app.use(express_session_1.default({
+            secret: sessionSecret,
+            resave: false,
+            saveUninitialized: false
+        }));
+        //initialize passport 
+        this.app.use(passport_1.default.initialize());
+        this.app.use(passport_1.default.session());
         // set up mongoose
         console.log('Connecting to DB....');
-        mongoose_1.default.connect(this.mongodbUri, { useNewUrlParser: true, useUnifiedTopology: true })
+        mongoose_1.default.connect("mongodb://localhost:27017/BIBLIO", { useNewUrlParser: true, useUnifiedTopology: true })
             .then(() => console.log('Dabatase connected.'))
             .catch((e) => console.log('Error connection db.', e));
         mongoose_1.default.set('useFindAndModify', false);
@@ -47,11 +73,12 @@ class Server {
         // this.app.use('/api/crud', CrudRouter)
         this.app.use('/api/user', user_route_1.default);
         this.app.use('/api/book', book_route_1.default);
-        this.app.use('/', book_route_2.default);
+        this.app.use('/api/login', login_route_1.default);
+        this.app.use('/', main_route_1.default);
     }
     start() {
-        this.app.listen(this.port, () => {
-            console.log("server started");
+        this.app.listen(process.env.SERVER_PORT, () => {
+            console.log("server started" + process.env.SERVER_PORT);
         });
     }
 }
