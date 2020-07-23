@@ -1,22 +1,21 @@
 import { Router } from 'express';
 import userController from '../controllers/User.controller';
-import ensureAdmin from '../utils/ensureAdmin'
+import auth from '../utils/auth'
 class UserRouter {
 
     router: Router;
-
     constructor() {
         this.router = Router();
         this.routes();
     }
 
     routes() {
-        this.router.get('/getAll', ensureAdmin, userController.GetUsers);
-        this.router.get('/get/:id', ensureAdmin, userController.GetUserById);
-        this.router.get('/paginate', ensureAdmin, userController.GetPaginatedUser);
-        this.router.put('/put/:id', ensureAdmin, userController.UpdateUser);
-        this.router.post('/post', ensureAdmin, userController.PostUser);
-        this.router.delete('/delete/:id', ensureAdmin, userController.DeleteUser);
+        this.router.get('/getAll', auth.ensureAdmin, userController.GetUsers);
+        this.router.get('/get/:id', auth.ensureAdmin, userController.GetUserById);
+        this.router.get('/paginate', auth.ensureAdmin, userController.GetPaginatedUser);
+        this.router.put('/put/:id', auth.ensureAdmin, userController.UpdateUser);
+        this.router.post('/post', auth.ensureAdmin, userController.PostUser);
+        this.router.delete('/delete/:id', auth.ensureAdmin, userController.DeleteUser);
     }
 }
 

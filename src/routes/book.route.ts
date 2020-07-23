@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import BookController from '../controllers/book.controller';
-import ensureAdmin from '../utils/auth';
+import auth from '../utils/auth'
 class BookRouter {
 
     router: Router;
@@ -12,7 +12,7 @@ class BookRouter {
 
     routes() {
         this.router.get('/getAll', BookController.GetBooks);
-        this.router.get('/get/:id', ensureAdmin, BookController.GetBookById);
+        this.router.get('/get/:id', auth.ensureAdmin ,BookController.GetBookById);
         this.router.get('/paginate', BookController.GetPaginatedBook);
         this.router.put('/put/:id', BookController.UpdateBook);
         this.router.post('/post', BookController.PostBook);

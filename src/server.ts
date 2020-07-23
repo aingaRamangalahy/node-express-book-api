@@ -13,14 +13,10 @@ import MainRouter from './routes/main.route';
 import UserRouter from './routes/user.route';
 import LoginRouter from './routes/login.route'
 //import authentification
-import passport from 'passport';
-import localStrategy from 'passport-local';
+import auth from './utils/auth'
 import cookieParser from 'cookie-parser';
-import expressSession from 'express-session'
 
-const Strategy = localStrategy.Strategy
-const sessionSecret = process.env.SESSION_SECRET || 'mark it zero'
-const adminPassword = process.env.ADMIN_PASSWORD || 'adminpass'
+
 // Server class
 class Server {
 
@@ -34,30 +30,10 @@ class Server {
     public config(){
         //load env
         dotenv.config({ path: path.resolve(process.cwd(), '.env') })
-        
-        //local passport strategy config
-        passport.use(
-          new Strategy(function (username, password, cb) {
-            const isAdmin = (username === 'admin' || 'ainga') && (password === adminPassword)
-            if (isAdmin) cb(null, { username: 'admin' })
-            cb(null, false)
-          })
-        )
-        //passport serialization/deserialization (identity function => return its arguments)
-        passport.serializeUser((user, cb) => cb(null, user))
-        passport.deserializeUser((user, cb) => cb(null, user))
+        auth.setAuthStrategies();
         //parse cookies
         this.app.use(cookieParser())
-        this.app.use(
-          expressSession({
-            secret: sessionSecret, // so we can sign cookies
-            resave: false,
-            saveUninitialized: false
-          })
-        )
-        //initialize passport 
-        this.app.use(passport.initialize())
-        this.app.use(passport.session())
+        auth.setAuthMiddleware(this.app)
         // set up mongoose
         console.log('Connecting to DB....');
         mongoose.connect("mongodb://localhost:27017/BIBLIO", { useNewUrlParser: true, useUnifiedTopology: true })
