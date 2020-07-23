@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import LoginController from '../controllers/Login.controller';
 import passport from 'passport';
+import auth from '../utils/auth'
 
 class LoginRouter {
 
@@ -12,7 +13,7 @@ class LoginRouter {
     }
 
     routes() {
-        this.router.post('/', passport.authenticate('local'), LoginController.Login);
+        this.router.post('/', passport.authenticate('local'), auth.login);
     }
 }
 

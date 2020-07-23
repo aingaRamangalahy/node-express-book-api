@@ -31,7 +31,6 @@ class Server {
         auth_1.default.setAuthStrategies();
         //parse cookies
         this.app.use(cookie_parser_1.default());
-        auth_1.default.setAuthMiddleware(this.app);
         // set up mongoose
         console.log('Connecting to DB....');
         mongoose_1.default.connect("mongodb://localhost:27017/BIBLIO", { useNewUrlParser: true, useUnifiedTopology: true })
