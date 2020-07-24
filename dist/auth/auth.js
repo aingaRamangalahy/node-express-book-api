@@ -22,20 +22,18 @@ const jwtOpts = { algorithm: 'HS256', expiresIn: '30d' };
 class Auth {
     constructor() {
         this.authenticate = passport_1.default.authenticate('local', { session: false });
-    }
-    setAuthStrategies() {
-        passport_1.default.use(this.adminStrategy());
-    }
-    adminStrategy() {
-        return new Strategy(function (username, password, cb) {
-            const isAdmin = username === 'admin' || 'ainga' && password === adminPassword;
-            if (isAdmin)
-                return cb(null, { username: 'admin' });
-            cb(null, false);
-        });
-    }
-    ensureAdmin(req, res, next) {
-        return __awaiter(this, void 0, void 0, function* () {
+        this.setAuthStrategies = () => {
+            passport_1.default.use(this.adminStrategy());
+        };
+        this.adminStrategy = () => {
+            return new Strategy(function (username, password, cb) {
+                const isAdmin = username === 'admin' || 'ainga' && password === adminPassword;
+                if (isAdmin)
+                    return cb(null, { username: 'admin' });
+                cb(null, false);
+            });
+        };
+        this.ensureAdmin = (req, res, next) => __awaiter(this, void 0, void 0, function* () {
             const jwtString = req.headers.authorization || req.cookies.jwt;
             const payload = yield this.verify(jwtString); // toDo : create interface for payload
             if (payload.username === 'admin')
@@ -44,22 +42,17 @@ class Auth {
             err.statusCode = 401;
             next(err);
         });
-    }
-    login(req, res, next) {
-        return __awaiter(this, void 0, void 0, function* () {
+        this.login = (req, res, next) => __awaiter(this, void 0, void 0, function* () {
             const token = yield this.sign({ username: req.user.username });
             res.cookie('jwt', token, { httpOnly: true });
             res.json({ success: true, token: token });
         });
-    }
-    sign(payload) {
-        return __awaiter(this, void 0, void 0, function* () {
+        this.sign = (payload) => __awaiter(this, void 0, void 0, function* () {
             const token = yield jsonwebtoken_1.default.sign(payload, jwtSecret, jwtOpts);
+            console.log(token);
             return token;
         });
-    }
-    verify(jwtString = '') {
-        return __awaiter(this, void 0, void 0, function* () {
+        this.verify = (jwtString = '') => __awaiter(this, void 0, void 0, function* () {
             jwtString = jwtString.replace(/^Bearer /i, '');
             try {
                 const payload = yield jsonwebtoken_1.default.verify(jwtString, jwtSecret);

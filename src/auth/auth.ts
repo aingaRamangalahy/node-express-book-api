@@ -1,27 +1,24 @@
-//function to check user is authentified as admin
-
-import { Application } from "express";
 import passport from 'passport';
 import localStrategy from 'passport-local';
-import jwt from 'jsonwebtoken';
+import jwt, { SignOptions } from 'jsonwebtoken';
 
 const Strategy = localStrategy.Strategy
 const jwtSecret = process.env.SESSION_SECRET || 'mark it zero'
 const adminPassword = process.env.ADMIN_PASSWORD || 'adminpass'
-const jwtOpts = { algorithm: 'HS256', expiresIn: '30d' }
-const authenticate = passport.authenticate('local', { session: false })
+const jwtOpts: SignOptions = { algorithm: 'HS256', expiresIn: '30d' } ;
 
 
 class Auth {
+  public authenticate = passport.authenticate('local', { session: false })
 
   constructor() {
     
   }
-  setAuthStrategies () {
+  setAuthStrategies  = () => {
     passport.use(this.adminStrategy())
   }
 
-  adminStrategy () {
+  adminStrategy = () => {
     return new Strategy(function (username, password, cb) {
       const isAdmin = username === 'admin' || 'ainga' && password === adminPassword
       if (isAdmin) return cb(null, { username: 'admin' })
@@ -29,7 +26,7 @@ class Auth {
     })
   }
 
-  async ensureAdmin (req: any, res: any, next: any) {
+   ensureAdmin = async (req: any, res: any, next: any) => {
     const jwtString = req.headers.authorization || req.cookies.jwt
     const payload: any =  await this.verify(jwtString) // toDo : create interface for payload
     if (payload.username === 'admin') return next()
@@ -38,24 +35,20 @@ class Auth {
     next(err)
   }
 
-  async login (req: any, res: any, next: any) {
+   login = async (req: any, res: any, next: any) => {
     const token = await this.sign({ username: req.user.username })
     res.cookie('jwt', token, { httpOnly: true })
     res.json({ success: true, token: token })
   }
 
-  async sign (payload: Object) {
-    const token = await jwt.sign(
-      payload, 
-      jwtSecret, { 
-        algorithm: 'HS256', 
-        expiresIn: '30d' 
-      })
+   sign = async(payload: Object) => {
+    const token = await jwt.sign(payload, jwtSecret, jwtOpts)
+    console.log(token)
     return token
   }
 
   
-  async verify (jwtString = '') {
+  verify = async (jwtString = '') => {
     jwtString = jwtString.replace(/^Bearer /i, '')
     try {
       const payload = await jwt.verify(jwtString, jwtSecret)

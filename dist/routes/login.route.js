@@ -4,15 +4,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
-const passport_1 = __importDefault(require("passport"));
-const auth_1 = __importDefault(require("../utils/auth"));
+const auth_1 = __importDefault(require("../auth/auth"));
 class LoginRouter {
     constructor() {
         this.router = express_1.Router();
         this.routes();
     }
     routes() {
-        this.router.post('/', passport_1.default.authenticate('local'), auth_1.default.login);
+        this.router.post('/', auth_1.default.authenticate, auth_1.default.login);
     }
 }
 exports.default = new LoginRouter().router;

@@ -1,5 +1,7 @@
 import { Response, Request } from 'express';
-import User from '../model/user.model'
+import User from '../model/user.model';
+import bcrypt from 'bcrypt';
+const SALT_ROUND = 10;
 
 class UserController {
 

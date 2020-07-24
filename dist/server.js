@@ -17,38 +17,35 @@ const main_route_1 = __importDefault(require("./routes/main.route"));
 const user_route_1 = __importDefault(require("./routes/user.route"));
 const login_route_1 = __importDefault(require("./routes/login.route"));
 //import authentification
-const auth_1 = __importDefault(require("./utils/auth"));
+const auth_1 = __importDefault(require("./auth/auth"));
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
 // Server class
 class Server {
     constructor() {
         this.app = express_1.default();
         this.config();
+        this.mongo();
+        this.routes();
     }
     config() {
-        //load env
         dotenv_1.default.config({ path: path_1.default.resolve(process.cwd(), '.env') });
         auth_1.default.setAuthStrategies();
-        //parse cookies
         this.app.use(cookie_parser_1.default());
-        // set up mongoose
-        console.log('Connecting to DB....');
-        mongoose_1.default.connect("mongodb://localhost:27017/BIBLIO", { useNewUrlParser: true, useUnifiedTopology: true })
-            .then(() => console.log('Dabatase connected.'))
-            .catch((e) => console.log('Error connection db.', e));
-        mongoose_1.default.set('useFindAndModify', false);
-        //mongoose.pluralize(null);
-        // config body paser
         this.app.use(body_parser_1.default.json({ limit: '50mb' }));
         this.app.use(body_parser_1.default.urlencoded({ limit: '50mb', extended: true }));
-        //config cors
         this.app.use(cors_1.default());
         // this.app.use(express.static(path.join(__dirname, 'dist')))
         //this.app.use('/public', express.static(path.join(process.cwd(), 'public')))
         // this.app.use('/assets',express.static(path.join(__dirname, 'dist/v3/assets')))
     }
+    mongo() {
+        console.log('Connecting to DB....');
+        mongoose_1.default.connect("mongodb://localhost:27017/BIBLIO", { useNewUrlParser: true, useUnifiedTopology: true })
+            .then(() => console.log('Dabatase connected.'))
+            .catch((e) => console.log('Error connection db.', e));
+        mongoose_1.default.set('useFindAndModify', false);
+    }
     routes() {
-        // this.app.use('/api/crud', CrudRouter)
         this.app.use('/api/user', user_route_1.default);
         this.app.use('/api/book', book_route_1.default);
         this.app.use('/api/login', login_route_1.default);

@@ -1,19 +1,17 @@
 import { Router } from 'express';
-import LoginController from '../controllers/Login.controller';
 import passport from 'passport';
-import auth from '../utils/auth'
+import auth from '../auth/auth'
 
 class LoginRouter {
 
     router: Router;
-
     constructor() {
         this.router = Router();
         this.routes();
     }
 
     routes() {
-        this.router.post('/', passport.authenticate('local'), auth.login);
+        this.router.post('/', auth.authenticate, auth.login);
     }
 }
 
