@@ -23,14 +23,14 @@ class Server {
     public app: express.Application;
 
     constructor() {
+        dotenv.config({ path: path.resolve(process.cwd(), '.env') })
         this.app = express()
         this.config()
-        this.mongo()
+        this.mongo(process.env.MONGODB_URI)
         this.routes()
     }
 
     public config() {
-        dotenv.config({ path: path.resolve(process.cwd(), '.env') })
         auth.setAuthStrategies();
         this.app.use(cookieParser())     
         this.app.use(bodyParser.json({limit: '50mb'}));
@@ -41,7 +41,7 @@ class Server {
         // this.app.use('/assets',express.static(path.join(__dirname, 'dist/v3/assets')))
     }
 
-    public mongo(): void {
+    public mongo(uri: string): void {
       // console.log('Connecting to DB....');
       // mongoose.connect("mongodb://localhost:27017/BIBLIO", { useNewUrlParser: true, useUnifiedTopology: true })
       //     .then(() => console.log('Dabatase connected.'))
@@ -77,7 +77,8 @@ class Server {
       });
 
       const run = async () => {
-        await mongoose.connect("mongodb://localhost:27017/BIBLIO", {
+        console.log(`mongo uri ${uri}`)
+        await mongoose.connect(uri, {
           useNewUrlParser: true, 
           useUnifiedTopology: true
         });

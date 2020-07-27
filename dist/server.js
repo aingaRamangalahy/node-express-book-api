@@ -31,13 +31,13 @@ const cookie_parser_1 = __importDefault(require("cookie-parser"));
 // Server class
 class Server {
     constructor() {
+        dotenv_1.default.config({ path: path_1.default.resolve(process.cwd(), '.env') });
         this.app = express_1.default();
         this.config();
-        this.mongo();
+        this.mongo(process.env.MONGODB_URI);
         this.routes();
     }
     config() {
-        dotenv_1.default.config({ path: path_1.default.resolve(process.cwd(), '.env') });
         auth_1.default.setAuthStrategies();
         this.app.use(cookie_parser_1.default());
         this.app.use(body_parser_1.default.json({ limit: '50mb' }));
@@ -47,7 +47,7 @@ class Server {
         //this.app.use('/public', express.static(path.join(process.cwd(), 'public')))
         // this.app.use('/assets',express.static(path.join(__dirname, 'dist/v3/assets')))
     }
-    mongo() {
+    mongo(uri) {
         // console.log('Connecting to DB....');
         // mongoose.connect("mongodb://localhost:27017/BIBLIO", { useNewUrlParser: true, useUnifiedTopology: true })
         //     .then(() => console.log('Dabatase connected.'))
@@ -81,7 +81,8 @@ class Server {
             console.log("Mongo Connection ERROR: " + error);
         });
         const run = () => __awaiter(this, void 0, void 0, function* () {
-            yield mongoose_1.default.connect("mongodb://localhost:27017/BIBLIO", {
+            console.log(`mongo uri ${uri}`);
+            yield mongoose_1.default.connect(uri, {
                 useNewUrlParser: true,
                 useUnifiedTopology: true
             });
