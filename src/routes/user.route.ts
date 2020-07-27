@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import userController from '../controllers/User.controller';
-import auth from '../utils/auth'
+import auth from '../auth/auth'
 class UserRouter {
 
     router: Router;
