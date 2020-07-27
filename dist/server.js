@@ -1,4 +1,13 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -17,60 +26,69 @@ const main_route_1 = __importDefault(require("./routes/main.route"));
 const user_route_1 = __importDefault(require("./routes/user.route"));
 const login_route_1 = __importDefault(require("./routes/login.route"));
 //import authentification
-const passport_1 = __importDefault(require("passport"));
-const passport_local_1 = __importDefault(require("passport-local"));
+const auth_1 = __importDefault(require("./auth/auth"));
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
-const express_session_1 = __importDefault(require("express-session"));
-const Strategy = passport_local_1.default.Strategy;
-const sessionSecret = process.env.SESSION_SECRET || 'mark it zero';
-const adminPassword = process.env.ADMIN_PASSWORD || 'adminpass';
 // Server class
 class Server {
     constructor() {
         this.app = express_1.default();
         this.config();
+        this.mongo();
+        this.routes();
     }
     config() {
-        //load env
         dotenv_1.default.config({ path: path_1.default.resolve(process.cwd(), '.env') });
-        //local passport strategy config
-        passport_1.default.use(new Strategy(function (username, password, cb) {
-            const isAdmin = (username === 'admin' || 'ainga') && (password === adminPassword);
-            if (isAdmin)
-                cb(null, { username: 'admin' });
-            cb(null, false);
-        }));
-        //passport serialization/deserialization (identity function => return its arguments)
-        passport_1.default.serializeUser((user, cb) => cb(null, user));
-        passport_1.default.deserializeUser((user, cb) => cb(null, user));
-        //parse cookies
+        auth_1.default.setAuthStrategies();
         this.app.use(cookie_parser_1.default());
-        this.app.use(express_session_1.default({
-            secret: sessionSecret,
-            resave: false,
-            saveUninitialized: false
-        }));
-        //initialize passport 
-        this.app.use(passport_1.default.initialize());
-        this.app.use(passport_1.default.session());
-        // set up mongoose
-        console.log('Connecting to DB....');
-        mongoose_1.default.connect("mongodb://localhost:27017/BIBLIO", { useNewUrlParser: true, useUnifiedTopology: true })
-            .then(() => console.log('Dabatase connected.'))
-            .catch((e) => console.log('Error connection db.', e));
-        mongoose_1.default.set('useFindAndModify', false);
-        //mongoose.pluralize(null);
-        // config body paser
         this.app.use(body_parser_1.default.json({ limit: '50mb' }));
         this.app.use(body_parser_1.default.urlencoded({ limit: '50mb', extended: true }));
-        //config cors
         this.app.use(cors_1.default());
         // this.app.use(express.static(path.join(__dirname, 'dist')))
         //this.app.use('/public', express.static(path.join(process.cwd(), 'public')))
         // this.app.use('/assets',express.static(path.join(__dirname, 'dist/v3/assets')))
     }
+    mongo() {
+        // console.log('Connecting to DB....');
+        // mongoose.connect("mongodb://localhost:27017/BIBLIO", { useNewUrlParser: true, useUnifiedTopology: true })
+        //     .then(() => console.log('Dabatase connected.'))
+        //     .catch((e) => console.log('Error connection db.',e))
+        // mongoose.set('useFindAndModify', false);
+        const connection = mongoose_1.default.connection;
+        connection.on("connected", () => {
+            console.log("Mongo Connection Established");
+        });
+        connection.on("reconnected", () => {
+            console.log("Mongo Connection Reestablished");
+        });
+        connection.on("disconnected", () => {
+            console.log("Mongo Connection Disconnected");
+            // console.log("Trying to reconnect to Mongo ...");
+            // setTimeout(() => {
+            //   mongoose.connect("mongodb://localhost:27017/BIBLIO", {
+            //     autoReconnect: true, 
+            //     keepAlive: true,
+            //     socketTimeoutMS: 3000, 
+            //     connectTimeoutMS: 3000,
+            //     useNewUrlParser: true, 
+            //     useUnifiedTopology: true
+            //   });
+            // }, 3000);
+        });
+        connection.on("close", () => {
+            console.log("Mongo Connection Closed");
+        });
+        connection.on("error", (error) => {
+            console.log("Mongo Connection ERROR: " + error);
+        });
+        const run = () => __awaiter(this, void 0, void 0, function* () {
+            yield mongoose_1.default.connect("mongodb://localhost:27017/BIBLIO", {
+                useNewUrlParser: true,
+                useUnifiedTopology: true
+            });
+        });
+        run().catch(error => console.error(error));
+    }
     routes() {
-        // this.app.use('/api/crud', CrudRouter)
         this.app.use('/api/user', user_route_1.default);
         this.app.use('/api/book', book_route_1.default);
         this.app.use('/api/login', login_route_1.default);
