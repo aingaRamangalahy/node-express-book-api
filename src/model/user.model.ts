@@ -45,7 +45,7 @@ const emailSchema = (opts: any = {}) => {
 
 let Schema = mongoose.Schema
 let UserSchema = new Schema({
-  username: usernameSchema(),
+  username: {type: String, required: true},
   password: String,
   name: String,
   accountType: String,

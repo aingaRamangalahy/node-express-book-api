@@ -1,6 +1,8 @@
 import passport from 'passport';
 import localStrategy from 'passport-local';
 import jwt, { SignOptions } from 'jsonwebtoken';
+import User from '../model/user.model';
+import bcrypt from 'bcrypt'
 
 const Strategy = localStrategy.Strategy
 const jwtSecret = process.env.SESSION_SECRET || 'mark it zero'
@@ -19,14 +21,21 @@ class Auth {
   }
 
   adminStrategy = () => {
-    return new Strategy(function (username, password, cb) {
+    return new Strategy(async function (username, password, cb) {
       const isAdmin = username === 'admin' || 'ainga' && password === adminPassword
       if (isAdmin) return cb(null, { username: 'admin' })
+      try {
+        const user: any = await User.findOne({ username })
+        if (!user) return cb(null, false)
+        const isUser = await bcrypt.compare(password, user.password)
+        if (isUser) return cb(null, { username: user.username })
+      } catch (err) { }
+
       cb(null, false)
     })
   }
 
-   ensureAdmin = async (req: any, res: any, next: any) => {
+  ensureAdmin = async (req: any, res: any, next: any) => {
     const jwtString = req.headers.authorization || req.cookies.jwt
     const payload: any =  await this.verify(jwtString) // toDo : create interface for payload
     if (payload.username === 'admin') return next()

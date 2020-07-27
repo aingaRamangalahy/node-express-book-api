@@ -42,11 +42,47 @@ class Server {
     }
 
     public mongo(): void {
-      console.log('Connecting to DB....');
-      mongoose.connect("mongodb://localhost:27017/BIBLIO", { useNewUrlParser: true, useUnifiedTopology: true })
-          .then(() => console.log('Dabatase connected.'))
-          .catch((e) => console.log('Error connection db.',e))
-      mongoose.set('useFindAndModify', false);
+      // console.log('Connecting to DB....');
+      // mongoose.connect("mongodb://localhost:27017/BIBLIO", { useNewUrlParser: true, useUnifiedTopology: true })
+      //     .then(() => console.log('Dabatase connected.'))
+      //     .catch((e) => console.log('Error connection db.',e))
+      // mongoose.set('useFindAndModify', false);
+
+      const connection = mongoose.connection;
+      connection.on("connected", () => {
+        console.log("Mongo Connection Established");
+      });
+      connection.on("reconnected", () => {
+        console.log("Mongo Connection Reestablished");
+      });
+      connection.on("disconnected", () => {
+        console.log("Mongo Connection Disconnected");
+        // console.log("Trying to reconnect to Mongo ...");
+        // setTimeout(() => {
+        //   mongoose.connect("mongodb://localhost:27017/BIBLIO", {
+        //     autoReconnect: true, 
+        //     keepAlive: true,
+        //     socketTimeoutMS: 3000, 
+        //     connectTimeoutMS: 3000,
+        //     useNewUrlParser: true, 
+        //     useUnifiedTopology: true
+        //   });
+        // }, 3000);
+      });
+      connection.on("close", () => {
+        console.log("Mongo Connection Closed");
+      });
+      connection.on("error", (error: Error) => {
+        console.log("Mongo Connection ERROR: " + error);
+      });
+
+      const run = async () => {
+        await mongoose.connect("mongodb://localhost:27017/BIBLIO", {
+          useNewUrlParser: true, 
+          useUnifiedTopology: true
+        });
+      };
+      run().catch(error => console.error(error));
     }
 
     public routes(): void {

@@ -1,7 +1,13 @@
 import { Response, Request } from 'express';
 import User from '../model/user.model';
 import bcrypt from 'bcrypt';
-const SALT_ROUND = 10;
+const SALT_ROUNDS = 10;
+const hashPassword = async (user: any) => {
+  if (!user.password) throw user.invalidate('password', 'password is required')
+  if (user.password.length < 12) throw user.invalidate('password', 'password must be\
+  at least 12 characters')
+  user.password = await bcrypt.hash(user.password, SALT_ROUNDS)
+}
 
 class UserController {
 
@@ -25,20 +31,30 @@ class UserController {
       })
   }
 
-  PostUser = (req: Request, res: Response): void => {
+  PostUser = async (req: Request, res: Response) => {
     console.log("controler action post")
-    let user = new User(req.body);
-    user.save((err, users) => {
+    let user = await new User(req.body);
+    console.log('user created')
+    await hashPassword(user);
+    user.save((err, user: any) => {
       if (err) res.status(500).send(err);
-      else res.send(users)
+      else res.json({message: 'user created', username: user.username})
     })
   }
 
-  UpdateUser = (req: Request, res: Response): void => {
-    User.findByIdAndUpdate(req.params.id, req.body, (err, user) => {
-      if (err) res.status(500).send(err);
-      else res.send("update done")
-    })
+  UpdateUser = async (req: Request, res: Response, change: any) => {
+    // User.findByIdAndUpdate(req.params.id, req.body, (err, user) => {
+    //   if (err) res.status(500).send(err);
+    //   else res.send("update done")
+    // })
+    let user = User.findOne(req.body.username);
+    res.json( {data: user} )
+    // Object.keys(change).forEach(key => { user[key] = change[key] })
+    // if (change.password) await hashPassword(user)
+    // user.save((err, user) => {
+    //   if (err) res.status(500).send(err)
+    //   else res.send(user)
+    // })
   }
 
   GetUserById = (req: Request, res: Response): void => {

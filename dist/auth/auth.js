@@ -15,6 +15,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const passport_1 = __importDefault(require("passport"));
 const passport_local_1 = __importDefault(require("passport-local"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const user_model_1 = __importDefault(require("../model/user.model"));
+const bcrypt_1 = __importDefault(require("bcrypt"));
 const Strategy = passport_local_1.default.Strategy;
 const jwtSecret = process.env.SESSION_SECRET || 'mark it zero';
 const adminPassword = process.env.ADMIN_PASSWORD || 'adminpass';
@@ -27,10 +29,21 @@ class Auth {
         };
         this.adminStrategy = () => {
             return new Strategy(function (username, password, cb) {
-                const isAdmin = username === 'admin' || 'ainga' && password === adminPassword;
-                if (isAdmin)
-                    return cb(null, { username: 'admin' });
-                cb(null, false);
+                return __awaiter(this, void 0, void 0, function* () {
+                    const isAdmin = username === 'admin' || 'ainga' && password === adminPassword;
+                    if (isAdmin)
+                        return cb(null, { username: 'admin' });
+                    try {
+                        const user = yield user_model_1.default.findOne({ username });
+                        if (!user)
+                            return cb(null, false);
+                        const isUser = yield bcrypt_1.default.compare(password, user.password);
+                        if (isUser)
+                            return cb(null, { username: user.username });
+                    }
+                    catch (err) { }
+                    cb(null, false);
+                });
             });
         };
         this.ensureAdmin = (req, res, next) => __awaiter(this, void 0, void 0, function* () {
